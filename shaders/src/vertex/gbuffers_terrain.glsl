@@ -1,5 +1,6 @@
 #include "/src/include/settings.glsl"
 #include "/src/utils/util_shadow.glsl"
+#include "/src/utils/util_transform.glsl"
 
 uniform sampler2D lightmap;
 
@@ -7,22 +8,33 @@ uniform mat4 gbufferModelViewInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
 
-varying vec4 v_pos_clip_shadow;
+uniform vec3 gViewToSClipR0;
+uniform vec3 gViewToSClipR1;
+uniform vec3 gViewToSClipR2;
+
+uniform vec3 gViewToSClipC3;
+
+varying vec3 v_pos_clip_shadow;
 
 varying vec2 v_coord_tex;
 varying vec2 v_coord_lm;
 varying vec4 v_color;
 
 void main() {
-	vec4 pos_view = gl_ModelViewMatrix * gl_Vertex;
+	vec3 pos_view = mulMat4Vec3( gl_ModelViewMatrix, gl_Vertex.xyz );
 
-	v_color = gl_Color * texture2DLod( lightmap, ( gl_TextureMatrix[1] * gl_MultiTexCoord1 ).xy, 0 );
+	v_color = gl_Color * texture2DLod( lightmap, clamp( mat2( gl_TextureMatrix[1] ) * gl_MultiTexCoord1.xy, 0.03125, 0.96875 ), 0 );
 	v_coord_tex = ( gl_TextureMatrix[0] * gl_MultiTexCoord0 ).xy;
 
-	v_pos_clip_shadow = shadowProjection * shadowModelView * gbufferModelViewInverse * pos_view;
+	//mat3 gViewToSClip = mat3( gViewToSClipC0, gViewToSClipC1, gViewToSClipC2 );
+	v_pos_clip_shadow = vec3( dot( gViewToSClipR0, pos_view ), dot( gViewToSClipR1, pos_view ), dot( gViewToSClipR2, pos_view ) );
+	//mat4 gViewToSClip = gbufferModelViewInverse * shadowModelView * shadowProjection;
+	//v_pos_clip_shadow = mulMat4Vec3( gViewToSClip, pos_view );
+	//v_pos_clip_shadow = gViewToSClip * pos_view + gViewToSClipC3;
+	v_pos_clip_shadow +=  gViewToSClipC3;
 	v_pos_clip_shadow.xy = v_pos_clip_shadow.xy * calc_distort( v_pos_clip_shadow.xyz );
 	v_pos_clip_shadow.z *= 0.3;
-	v_pos_clip_shadow = ( v_pos_clip_shadow * ( 0.5 / v_pos_clip_shadow.w ) ) + 0.5;
+	v_pos_clip_shadow = v_pos_clip_shadow * 0.5 + 0.5;
 
-	gl_Position = gl_ProjectionMatrix * pos_view;
+	gl_Position = gl_ProjectionMatrix * vec4( pos_view, 1.0 );
 }

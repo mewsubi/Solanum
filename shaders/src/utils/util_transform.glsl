@@ -1,0 +1,1 @@
+#define mulMat4Vec3( M, V ) mat3( M ) * V + M[3].xyz;

@@ -5,7 +5,7 @@ uniform sampler2D tex;
 uniform sampler2DShadow shadowtex0;
 uniform sampler2D shadowcolor0;
 
-varying vec4 v_pos_clip_shadow;
+varying vec3 v_pos_clip_shadow;
 
 varying vec2 v_coord_tex;
 varying vec4 v_color;
