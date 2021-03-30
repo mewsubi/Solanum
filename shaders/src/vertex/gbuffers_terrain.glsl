@@ -20,6 +20,8 @@ varying vec2 v_coord_tex;
 varying vec2 v_coord_lm;
 varying vec4 v_color;
 
+varying float v_dot_N_L;
+
 void main() {
 	vec3 pos_view = mulMat4Vec3( gl_ModelViewMatrix, gl_Vertex.xyz );
 
@@ -31,10 +33,16 @@ void main() {
 	//mat4 gViewToSClip = gbufferModelViewInverse * shadowModelView * shadowProjection;
 	//v_pos_clip_shadow = mulMat4Vec3( gViewToSClip, pos_view );
 	//v_pos_clip_shadow = gViewToSClip * pos_view + gViewToSClipC3;
-	v_pos_clip_shadow +=  gViewToSClipC3;
-	v_pos_clip_shadow.xy = v_pos_clip_shadow.xy * calc_distort( v_pos_clip_shadow.xyz );
+
+	vec3 normal = normalize( gl_Normal );
+	v_dot_N_L = dot( normal, normalize( vec3( shadowModelView[ 0 ][ 2 ], shadowModelView[ 1 ][ 2 ], shadowModelView[ 2 ][ 2 ] ) ) );
+
+	v_pos_clip_shadow += gViewToSClipC3;
+	float distort = calc_distort( v_pos_clip_shadow.xyz );
+	v_pos_clip_shadow.xy = v_pos_clip_shadow.xy * distort;
 	v_pos_clip_shadow.z *= 0.3;
 	v_pos_clip_shadow = v_pos_clip_shadow * 0.5 + 0.5;
+	v_pos_clip_shadow -= vec3( 0.0, 0.0, max( 0.005 * ( 1.0 - v_dot_N_L ), 0.0005 ) * ( 1.0 / distort ) );
 
 	gl_Position = gl_ProjectionMatrix * vec4( pos_view, 1.0 );
 }
