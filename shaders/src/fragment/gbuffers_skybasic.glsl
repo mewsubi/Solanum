@@ -1,3 +1,5 @@
+#include "/src/include/settings.glsl"
+
 varying vec4 v_color;
 
 void main() {
