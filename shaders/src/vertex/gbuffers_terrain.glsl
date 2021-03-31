@@ -47,5 +47,8 @@ void main() {
 	v_pos_clip_shadow = v_pos_clip_shadow * 0.5 + 0.5;
 	v_pos_clip_shadow -= vec3( 0.0, 0.0, max( 0.005 * ( 1.0 - v_dot_N_L ), 0.0005 ) * ( 1.0 / distort ) );
 
+	float metadata = max( 0.0, floor( mc_Entity.x - 9999.5 ) );
+	if( mod( metadata, 2 ) == 1 ) v_color = vec4( 0.0, 0.0, 0.0, 1.0 );
+
 	gl_Position = gl_ProjectionMatrix * vec4( pos_view, 1.0 );
 }

@@ -1,0 +1,17 @@
+minecraft:anvil=anvil anvil_top
+minecraft:chipped_anvil=damaged_anvil_top
+minecraft:damaged_anvil=chipped_anvil_top
+minecraft:bell=bell_bottom bell_side bell_top
+minecraft:cauldron=cauldron_bottom cauldron_inner cauldron_side cauldron_top
+minecraft:chain=chain
+minecraft:conduit=conduit
+minecraft:gold_block=gold_block
+minecraft:hopper=hopper_inside hopper_outside hopper_top
+minecraft:iron_bars=iron_bars
+minecraft:iron_block=iron_block
+minecraft:iron_door=iron_door_bottom iron_door_top
+minecraft:iron_trapdoor=iron_trapdoor
+minecraft:netherite_block=netherite_block
+minecraft:spawner=spawner
+minecraft:dragon_egg=dragon_egg
+minecraft:redstone_block=redstone_block

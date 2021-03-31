@@ -1,4 +1,4 @@
-const int shadowMapResolution = 512;
+const int shadowMapResolution = 1024;
 const float shadowDistanceRenderMul = 1.f;
 const float shadowDistance = 128.0;
 const float shadowIntervalSize = 1.0;
