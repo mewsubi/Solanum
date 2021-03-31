@@ -1,4 +1,5 @@
 #include "/src/include/settings.glsl"
+#extension GL_ARB_shader_texture_lod : enable
 
 uniform sampler2D lightmap;
 

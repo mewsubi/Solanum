@@ -1,6 +1,9 @@
 #include "/src/include/settings.glsl"
 #include "/src/utils/util_shadow.glsl"
 #include "/src/utils/util_transform.glsl"
+#extension GL_ARB_shader_texture_lod : enable
+
+attribute vec3 mc_Entity;
 
 uniform sampler2D lightmap;
 

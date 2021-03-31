@@ -2,6 +2,9 @@
 #include "/src/utils/util_shadow.glsl"
 
 varying vec2 v_coord_tex;
+#ifdef COLORED_SHADOWS
+varying vec4 v_color;
+#endif
 
 void main() {
 	vec4 pos_shadow = ftransform();
@@ -9,4 +12,7 @@ void main() {
 	pos_shadow.z *= 0.3;
 	gl_Position = pos_shadow;
 	v_coord_tex = ( gl_TextureMatrix[ 0 ] * gl_MultiTexCoord0 ).xy;
+	#ifdef COLORED_SHADOWS
+	v_color = gl_Color;
+	#endif
 }
