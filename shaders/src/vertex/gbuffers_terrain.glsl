@@ -7,23 +7,35 @@ attribute vec3 mc_Entity;
 
 uniform sampler2D lightmap;
 
+uniform vec3 cameraPosition;
+uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
+uniform vec3 shadowDir;
 
 uniform vec3 gViewToSClipR0;
 uniform vec3 gViewToSClipR1;
 uniform vec3 gViewToSClipR2;
 
+uniform vec3 sMVPR0;
+uniform vec3 sMVPR1;
+uniform vec3 sMVPR2;
+uniform vec3 sMVPC3;
+
 uniform vec3 gViewToSClipC3;
+
+varying vec3 v_vec_view;
 
 varying vec3 v_pos_clip_shadow;
 
 varying vec2 v_coord_tex;
-varying vec2 v_coord_lm;
 varying vec4 v_color;
+varying vec3 v_normal;
 
 varying float v_dot_N_L;
+varying float v_metallic;
+varying float v_roughness;
 
 void main() {
 	vec3 pos_view = mulMat4Vec3( gl_ModelViewMatrix, gl_Vertex.xyz );
@@ -31,16 +43,16 @@ void main() {
 	v_color = gl_Color * texture2DLod( lightmap, clamp( mat2( gl_TextureMatrix[1] ) * gl_MultiTexCoord1.xy, 0.03125, 0.96875 ), 0 );
 	v_coord_tex = ( gl_TextureMatrix[0] * gl_MultiTexCoord0 ).xy;
 
-	//mat3 gViewToSClip = mat3( gViewToSClipC0, gViewToSClipC1, gViewToSClipC2 );
-	v_pos_clip_shadow = vec3( dot( gViewToSClipR0, pos_view ), dot( gViewToSClipR1, pos_view ), dot( gViewToSClipR2, pos_view ) );
-	//mat4 gViewToSClip = gbufferModelViewInverse * shadowModelView * shadowProjection;
-	//v_pos_clip_shadow = mulMat4Vec3( gViewToSClip, pos_view );
-	//v_pos_clip_shadow = gViewToSClip * pos_view + gViewToSClipC3;
+	vec3 pos_world = mulMat4Vec3( gbufferModelViewInverse, pos_view );
 
-	vec3 normal = normalize( gl_Normal );
-	v_dot_N_L = dot( normal, normalize( vec3( shadowModelView[ 0 ][ 2 ], shadowModelView[ 1 ][ 2 ], shadowModelView[ 2 ][ 2 ] ) ) );
+	//v_pos_clip_shadow = vec3( dot( gViewToSClipR0, pos_view ), dot( gViewToSClipR1, pos_view ), dot( gViewToSClipR2, pos_view ) );
+	v_vec_view = pos_world;
+	v_pos_clip_shadow = vec3( dot( sMVPR0, pos_world ), dot( sMVPR1, pos_world ), dot( sMVPR2, pos_world ) );
 
-	v_pos_clip_shadow += gViewToSClipC3;
+	v_normal = normalize( gl_Normal );
+	v_dot_N_L = clamp( dot( v_normal, shadowDir ), 0.0, 1.0 );
+
+	v_pos_clip_shadow += sMVPC3;
 	float distort = calc_distort( v_pos_clip_shadow.xyz );
 	v_pos_clip_shadow.xy = v_pos_clip_shadow.xy * distort;
 	v_pos_clip_shadow.z *= 0.3;
@@ -48,7 +60,8 @@ void main() {
 	v_pos_clip_shadow -= vec3( 0.0, 0.0, max( 0.005 * ( 1.0 - v_dot_N_L ), 0.0005 ) * ( 1.0 / distort ) );
 
 	float metadata = max( 0.0, floor( mc_Entity.x - 9999.5 ) );
-	if( mod( metadata, 2 ) == 1 ) v_color = vec4( 0.0, 0.0, 0.0, 1.0 );
+	v_metallic = mod( metadata, 2 ) * 0.9;
+	v_roughness = 1.0 - ( 231.0 / 255.0 );
 
 	gl_Position = gl_ProjectionMatrix * vec4( pos_view, 1.0 );
 }
